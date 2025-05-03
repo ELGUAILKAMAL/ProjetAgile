@@ -12,4 +12,5 @@ public interface IUtilisateur {
         Utilisateur updateUser(Long id, Utilisateur utilisateur);
         void deleteUser(Long id);
         Utilisateur findByUsername(String username);
+        Utilisateur findByEmail(String email);
 }

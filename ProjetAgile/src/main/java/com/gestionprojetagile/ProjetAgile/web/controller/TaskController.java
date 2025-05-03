@@ -3,71 +3,75 @@ package com.gestionprojetagile.ProjetAgile.web.controller;
 
 import com.gestionprojetagile.ProjetAgile.web.DTO.TaskDTO;
 import com.gestionprojetagile.ProjetAgile.web.Enities.Task;
+import com.gestionprojetagile.ProjetAgile.web.mapping.TaskMapper;
 import com.gestionprojetagile.ProjetAgile.web.service.InterfaceService.ITask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
-
+    private TaskMapper taskMapper;
     private ITask taskService;
-    public TaskController(ITask iTask){
+    public TaskController(ITask iTask, TaskMapper taskMapper){
         this.taskService=iTask;
+        this.taskMapper=taskMapper;
     }
     // CRUD Operations
     @PostMapping("/user-story/{userStoryId}")
     public ResponseEntity<TaskDTO> createTask(
             @PathVariable Long userStoryId,
             @RequestBody TaskDTO taskDTO) {
-        Task task = convertToEntity(taskDTO);
+        Task task = taskMapper.taskDtoToTask(taskDTO);
         Task createdTask = taskService.createTask(userStoryId, task);
-        return new ResponseEntity<>(convertToDTO(createdTask), HttpStatus.CREATED);
+        return new ResponseEntity<>(taskMapper.taskToTaskDto(createdTask), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/getTask/{id}")
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
-        return ResponseEntity.ok(convertToDTO(task));
+        return ResponseEntity.ok(taskMapper.taskToTaskDto(task));
     }
 
     @GetMapping("/user-story/{userStoryId}")
     public ResponseEntity<List<TaskDTO>> getTasksByUserStory(
             @PathVariable Long userStoryId) {
         List<Task> tasks = taskService.getTasksByUserStoryId(userStoryId);
-        List<TaskDTO> dtos = tasks.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<TaskDTO> dtos = new ArrayList<>();
+        for(Task task : tasks){
+            dtos.add(taskMapper.taskToTaskDto(task));
+        }
         return ResponseEntity.ok(dtos);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/modifyTask/{id}")
     public ResponseEntity<TaskDTO> updateTask(
             @PathVariable Long id,
             @RequestBody TaskDTO taskDTO) {
-        Task task = convertToEntity(taskDTO);
+        Task task = taskMapper.taskDtoToTask(taskDTO);
         Task updatedTask = taskService.updateTask(id, task);
-        return ResponseEntity.ok(convertToDTO(updatedTask));
+        return ResponseEntity.ok(taskMapper.taskToTaskDto(updatedTask));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteTask/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 
     // Status Management
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/modifyStatus/{id}/status")
     public ResponseEntity<TaskDTO> updateTaskStatus(
             @PathVariable Long id,
             @RequestParam String status) {
         Task task = taskService.updateTaskStatus(id, status);
-        return ResponseEntity.ok(convertToDTO(task));
+        return ResponseEntity.ok(taskMapper.taskToTaskDto(task));
     }
 
     // User Assignment
@@ -75,28 +79,12 @@ public class TaskController {
     public ResponseEntity<List<TaskDTO>> getTasksByAssignee(
             @PathVariable Long userId) {
         List<Task> tasks = taskService.getTasksByAssignedUserId(userId);
-        List<TaskDTO> dtos = tasks.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<TaskDTO> dtos = new ArrayList<>();
+        for(Task task : tasks){
+            dtos.add(taskMapper.taskToTaskDto(task));
+        }
         return ResponseEntity.ok(dtos);
     }
 
-    // Conversion Methods
-    private Task convertToEntity(TaskDTO dto) {
-        Task task = new Task();
-        task.setId(dto.getId());
-        task.setTitle(dto.getTitle());
-        task.setDescription(dto.getDescription());
-        task.setStatus(dto.getStatus());
-        return task;
-    }
 
-    private TaskDTO convertToDTO(Task task) {
-        return new TaskDTO(
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getStatus()
-        );
-    }
 }

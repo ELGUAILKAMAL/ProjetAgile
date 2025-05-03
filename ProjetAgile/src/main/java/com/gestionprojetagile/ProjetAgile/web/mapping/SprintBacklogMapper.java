@@ -7,8 +7,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface SprintBacklogMapper {
-    SprintBacklogMapper INSTANCE = Mappers.getMapper(SprintBacklogMapper.class);
-
     SprintBacklogDTO sprintBlToSpringBlDto(SprintBacklog sprintBacklogDTO);
 
     SprintBacklog sprintBlDtoToSprintBl(SprintBacklogDTO sprintBacklogDTO);

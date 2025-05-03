@@ -8,8 +8,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface ProductBacklogMapper {
-    ProductBacklogMapper INSTANCE = Mappers.getMapper(ProductBacklogMapper.class);
-
     ProductBacklogDTO productBlToProductBlDto(ProductBacklog productBacklog);
 
     ProductBacklog productBlDtoToProductBl(ProductBacklogDTO ProductBacklogDTO);

@@ -8,7 +8,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
-    ProjectMapper INSTANCE = Mappers.getMapper(ProjectMapper.class);
 
     ProjectDTO projectToProjectDto(Project project);
 

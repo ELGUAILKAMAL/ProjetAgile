@@ -43,7 +43,7 @@ public class UserStoryController {
         List<UserStory> userStories = userStoryService.getAllUserStories();
         List<UserStoryDTO> userStoryDTOS = new ArrayList<>();
         for(UserStory userStory : userStories){
-            userStoryMapper.userStoryToUserStoryDto(userStory);
+            userStoryDTOS.add(userStoryMapper.userStoryToUserStoryDto(userStory));
         }
         return ResponseEntity.ok(userStoryDTOS);
     }
@@ -68,16 +68,17 @@ public class UserStoryController {
             @PathVariable Long id,
             @RequestParam String status) {
         UserStory userStory = userStoryService.updateUserStoryStatus(id, status);
-        return ResponseEntity.ok(convertToDTO(userStory));
+        return ResponseEntity.ok(userStoryMapper.userStoryToUserStoryDto(userStory));
     }
 
     @GetMapping("/product-backlog/{productBacklogId}")
     public ResponseEntity<List<UserStoryDTO>> getByProductBacklog(
             @PathVariable Long productBacklogId) {
         Collection<UserStory> userStories = userStoryService.getUserStoriesByProductBacklogId(productBacklogId);
-        List<UserStoryDTO> dtos = userStories.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<UserStoryDTO> dtos = new ArrayList<>();
+        for(UserStory story : userStories){
+            dtos.add(userStoryMapper.userStoryToUserStoryDto(story));
+        }
         return ResponseEntity.ok(dtos);
     }
 
@@ -85,9 +86,10 @@ public class UserStoryController {
     public ResponseEntity<List<UserStoryDTO>> getByEpic(
             @PathVariable Long epicId) {
         Collection<UserStory> userStories = userStoryService.getUserStoriesByEpicId(epicId);
-        List<UserStoryDTO> dtos = userStories.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<UserStoryDTO> dtos = new ArrayList<>();
+        for(UserStory story : userStories){
+            dtos.add(userStoryMapper.userStoryToUserStoryDto(story));
+        }
         return ResponseEntity.ok(dtos);
     }
 

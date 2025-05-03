@@ -42,7 +42,10 @@ public class UtilisateurServiceImpl implements IUtilisateur {
 
             return utilisateurRepo.save(existingUser);
         }
-
+        @Override
+        public Utilisateur findByEmail(String email){
+            return utilisateurRepo.findUtilisateursByEmail(email);
+        }
         @Override
         public void deleteUser(Long id) {
             utilisateurRepo.deleteById(id);

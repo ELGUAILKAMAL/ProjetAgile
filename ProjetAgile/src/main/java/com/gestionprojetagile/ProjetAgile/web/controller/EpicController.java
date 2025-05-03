@@ -4,52 +4,56 @@ package com.gestionprojetagile.ProjetAgile.web.controller;
 import com.gestionprojetagile.ProjetAgile.web.DTO.EpicDTO;
 import com.gestionprojetagile.ProjetAgile.web.Enities.Epic;
 import com.gestionprojetagile.ProjetAgile.web.Enities.UserStory;
+import com.gestionprojetagile.ProjetAgile.web.mapping.EpicMapper;
 import com.gestionprojetagile.ProjetAgile.web.service.InterfaceService.IEpic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/epics")
 public class EpicController {
-
+    private EpicMapper epicMapper;
     private IEpic epicService;
-    public EpicController(IEpic epicService){
+    public EpicController(IEpic epicService, EpicMapper epicMapper){
+        this.epicMapper=epicMapper;
         this.epicService=epicService;
     }
-    @PostMapping
+    @PostMapping("/createEpic")
     public ResponseEntity<EpicDTO> createEpic(@RequestBody EpicDTO epicDTO) {
-        Epic epic = convertToEntity(epicDTO);
+        Epic epic = epicMapper.epicDtoToEpic(epicDTO);
         Epic createdEpic = epicService.createEpic(epic);
-        return ResponseEntity.ok(convertToDTO(createdEpic));
+        return ResponseEntity.ok(epicMapper.epicToEpicDto(createdEpic));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/getEpic/{id}")
     public ResponseEntity<EpicDTO> getEpicById(@PathVariable Long id) {
         Epic epic = epicService.getEpicById(id);
-        return ResponseEntity.ok(convertToDTO(epic));
+        return ResponseEntity.ok(epicMapper.epicToEpicDto(epic));
     }
 
-    @GetMapping
+    @GetMapping("/getEpics")
     public ResponseEntity<List<EpicDTO>> getAllEpics() {
         List<Epic> epics = epicService.getAllEpics();
-        List<EpicDTO> epicDTOs = epics.stream()
-                .map(this::convertToDTO)
-                .toList();
+        List<EpicDTO> epicDTOs = new ArrayList<>();
+        for(Epic epic : epics){
+            epicDTOs.add(epicMapper.epicToEpicDto(epic));
+        }
         return ResponseEntity.ok(epicDTOs);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/modifyEpic/{id}")
     public ResponseEntity<EpicDTO> updateEpic(@PathVariable Long id, @RequestBody EpicDTO epicDTO) {
-        Epic epic = convertToEntity(epicDTO);
+        Epic epic = epicMapper.epicDtoToEpic(epicDTO);
         Epic updatedEpic = epicService.updateEpic(id, epic);
-        return ResponseEntity.ok(convertToDTO(updatedEpic));
+        return ResponseEntity.ok(epicMapper.epicToEpicDto(updatedEpic));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteEpic/{id}")
     public ResponseEntity<Void> deleteEpic(@PathVariable Long id) {
         epicService.deleteEpic(id);
         return ResponseEntity.noContent().build();
@@ -77,19 +81,6 @@ public class EpicController {
         return ResponseEntity.noContent().build();
     }
 
-    private Epic convertToEntity(EpicDTO dto) {
-        Epic epic = new Epic();
-        epic.setId(dto.getId());
-        epic.setName(dto.getName());
-        epic.setDescription(dto.getDescription());
-        return epic;
-    }
 
-    private EpicDTO convertToDTO(Epic epic) {
-        return new EpicDTO(
-                epic.getId(),
-                epic.getName(),
-                epic.getDescription()
-        );
-    }
+
 }

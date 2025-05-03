@@ -8,6 +8,5 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface EpicMapper {
     EpicDTO epicToEpicDto(Epic epic);
-
     Epic epicDtoToEpic(EpicDTO epicDTO);
 }
